@@ -16,23 +16,24 @@ type Baby struct {
 func (b *Baby) Step() {
     b.CurrentInstruction++
 
-    fmt.Printf("%02d ", b.CurrentInstruction)
+    instr := b.Memory[b.CurrentInstruction]
+    data := instr & 0x0000001F
 
-    switch instr := b.Memory[b.CurrentInstruction]; instr & 0x0000F000 {
+    switch instr & 0x0000F000 {
     case 0x00000000: // JMP
-        fmt.Printf("JMP %d\n", instr & 0x0000001F)
+        b.CurrentInstruction = data
     case 0x00002000: // CMP
-        fmt.Printf("JRP %d\n", instr & 0x0000001F
+        fmt.Printf("JRP %d\n", data)
     case 0x00004000: // LDN
-        fmt.Printf("LDN %d\n", instr & 0x0000001F)
+        fmt.Printf("LDN %d\n", data)
     case 0x00006000: // STO
-        fmt.Printf("STO %d\n", instr & 0x0000001F)
+        fmt.Printf("STO %d\n", data)
     case 0x00008000: // SUB
-        fmt.Printf("SUB %d\n", instr & 0x0000001F)
+        fmt.Printf("SUB %d\n", data)
     case 0x0000C000: // CMP
-        fmt.Printf("CMP\n"))
+        fmt.Printf("CMP\n")
     case 0x0000E000: // STP
-        fmt.Printf("STP\n")
+        return
     default:
         panic("trying to execute non-instruction code!")
     }
