@@ -21,6 +21,8 @@ func (b *Baby) Step() {
     switch instr := b.Memory[b.CurrentInstruction]; instr & 0x0000F000 {
     case 0x00000000: // JMP
         fmt.Printf("JMP %d\n", instr & 0x0000001F)
+    case 0x00002000: // CMP
+        fmt.Printf("JRP %d\n", instr & 0x0000001F
     case 0x00004000: // LDN
         fmt.Printf("LDN %d\n", instr & 0x0000001F)
     case 0x00006000: // STO
@@ -28,13 +30,11 @@ func (b *Baby) Step() {
     case 0x00008000: // SUB
         fmt.Printf("SUB %d\n", instr & 0x0000001F)
     case 0x0000C000: // CMP
-        fmt.Printf("CMP\n")
-    case 0x00002000: // CMP
-        fmt.Printf("JRP %d\n", instr & 0x0000001F)
+        fmt.Printf("CMP\n"))
     case 0x0000E000: // STP
         fmt.Printf("STP\n")
     default:
-        fmt.Printf("unknown instr: %d\n", instr & 0x0000F000)
+        panic("trying to execute non-instruction code!")
     }
 }
 
