@@ -16,8 +16,18 @@ type Baby struct {
 func (b *Baby) Step() {
     b.CurrentInstruction++
 
-    switch instr := b.Memory[b.CurrentInstruction]; {
-    case (instr & 0x0000000F) == 0: // JMP
-        fmt.Printf("%02d JMP %d\n", b.CurrentInstruction, instr & 0x0000000F)
+    fmt.Printf("%02d ", b.CurrentInstruction)
+
+    switch instr := b.Memory[b.CurrentInstruction]; instr & 0x0000F000 {
+    case 0: // JMP
+        fmt.Printf("JMP %d\n", instr & 0x0000000F)
+    case 16384: // LDN
+        fmt.Printf("LDN %d\n", instr & 0x0000000F)
+    case 24576: // STO
+        fmt.Printf("STO %d\n", instr & 0x0000000F)
+    case 32768: // SUB
+        fmt.Printf("SUB %d\n", instr & 0x0000000F)
+    default:
+        fmt.Printf("unknown instr: %d\n", instr & 0x0000F000)
     }
 }
