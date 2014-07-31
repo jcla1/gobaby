@@ -29,14 +29,13 @@ func (b *Baby) Step() {
     case 0x00006000: // STO
         b.Memory[data] = b.Accumulator
     case 0x00008000: // SUB
-        fmt.Printf("SUB %d\n", data)
-
+        b.Accumulator -= b.Memory[data]
     case 0x0000C000: // CMP
-        fmt.Printf("CMP\n")
-
+        if (b.Accumulator < 0) {
+            b.CurrentInstruction++
+        }
     case 0x0000E000: // STP
         return
-
     default:
         panic("trying to execute non-instruction code!")
     }
