@@ -25,11 +25,9 @@ func (b *Baby) Step() {
     case 0x00002000: // JRP
         b.CurrentInstruction += b.Memory[data]
     case 0x00004000: // LDN
-        fmt.Printf("LDN %d\n", data)
-
+        b.Accumulator = -b.Memory[data]
     case 0x00006000: // STO
-        fmt.Printf("STO %d\n", data)
-
+        b.Memory[data] = b.Accumulator
     case 0x00008000: // SUB
         fmt.Printf("SUB %d\n", data)
 
