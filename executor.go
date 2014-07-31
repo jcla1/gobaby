@@ -21,19 +21,24 @@ func (b *Baby) Step() {
 
     switch instr & 0x0000F000 {
     case 0x00000000: // JMP
-        b.CurrentInstruction = data
-    case 0x00002000: // CMP
-        fmt.Printf("JRP %d\n", data)
+        b.CurrentInstruction = b.Memory[data]
+    case 0x00002000: // JRP
+        b.CurrentInstruction += b.Memory[data]
     case 0x00004000: // LDN
         fmt.Printf("LDN %d\n", data)
+
     case 0x00006000: // STO
         fmt.Printf("STO %d\n", data)
+
     case 0x00008000: // SUB
         fmt.Printf("SUB %d\n", data)
+
     case 0x0000C000: // CMP
         fmt.Printf("CMP\n")
+
     case 0x0000E000: // STP
         return
+
     default:
         panic("trying to execute non-instruction code!")
     }
