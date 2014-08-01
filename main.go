@@ -1,18 +1,21 @@
 package main
 
 import (
-    "github.com/jcla1/gobaby"
+    "github.com/jcla1/gobaby/baby"
     "io/ioutil"
     "fmt"
 )
 
 func main() {
-    fc, err := ioutil.ReadFile("primegen.asm")
+    fc, err := ioutil.ReadFile("examples/primegen.asm")
     if err != nil {
         panic(err)
     }
 
-    mem := baby.MemoryFromString(string(fc))
+    mem, err := baby.MemoryFromString(string(fc))
+    if err != nil {
+        panic(err)
+    }
 
     b := baby.Baby{0, 0, mem}
 
@@ -22,6 +25,4 @@ func main() {
         b.Accumulator = 0
         b.CurrentInstruction = 0
     }
-
-    fmt.Println("done!")
 }

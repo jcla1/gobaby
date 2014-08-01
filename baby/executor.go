@@ -5,9 +5,15 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"errors"
 )
 
 var lineRegex = regexp.MustCompile("[0-9]* *(NUM|JMP|JRP|LDN|STO|SUB|CMP|STP)( *)?(-?[0-9]+)?")
+
+var (
+	ErrNonInstruction = errors.New("trying to execute non-instruction code")
+	ErrUnknownOpcode = errors.New("unknown opcode")
+)
 
 type Baby struct {
 	CurrentInstruction uint32
@@ -18,10 +24,8 @@ type Baby struct {
 	Memory [32]uint32
 }
 
-func (b *Baby) Run() {
+func (b *Baby) Run() error {
 	for {
-		// fmt.Printf("CI : %d\nACC: %d\n-----\n", int32(b.CurrentInstruction), int32(b.Accumulator))
-		// fmt.Scanln()
 		b.CurrentInstruction++
 
 		instr := b.Memory[int32(b.CurrentInstruction)%32]
@@ -43,21 +47,22 @@ func (b *Baby) Run() {
 				b.CurrentInstruction++
 			}
 		case 0x0000E000: // STP
-			return
+			return nil
 		default:
-			fmt.Println("malicious position:", b.CurrentInstruction)
-			panic("trying to execute non-instruction code!")
+			return ErrNonInstruction
 		}
 	}
 }
 
-func instrToOpCode(instr string) uint32 {
+func instrToOpCode(instr string) (uint32, error) {
 	matches := lineRegex.FindStringSubmatch(instr)[1:]
 
 	if len(matches) < 1 {
-		panic("unknown opcode!")
+		return 0, ErrUnknownOpcode
 	}
 
+	// We ignore the possible error,
+	// to keep the code simpler.
 	opCode, _ := strconv.Atoi(matches[2])
 
 	switch matches[0] {
@@ -76,11 +81,12 @@ func instrToOpCode(instr string) uint32 {
 	case "STP":
 		opCode |= 0x0000E000
 	}
-	// fmt.Printf("%032b\n", uint32(opCode))
-	return uint32(opCode)
+
+	return uint32(opCode), nil
 }
 
-func MemoryFromString(prog string) [32]uint32 {
+func MemoryFromString(prog string) ([32]uint32, error) {
+	var err error
 	lines := strings.Split(prog, "\n")
 
 	var memory [32]uint32
@@ -93,10 +99,13 @@ func MemoryFromString(prog string) [32]uint32 {
 		}
 
 		if !strings.HasPrefix(line, ";") {
-			memory[memoryIndex] = instrToOpCode(line)
+			memory[memoryIndex], err = instrToOpCode(line)
+			if err != nil {
+				return memory, err
+			}
 			memoryIndex++
 		}
 	}
 
-	return memory
+	return memory, nil
 }
