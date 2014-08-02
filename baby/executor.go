@@ -58,6 +58,11 @@ func (b *Baby) Run() error {
 	}
 }
 
+func (b *Baby) Reset() {
+	b.Accumulator = 0
+	b.CurrentInstruction = 0
+}
+
 func instrToOpCode(instr string) (uint32, error) {
 	matches := lineRegex.FindStringSubmatch(instr)[1:]
 

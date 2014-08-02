@@ -22,9 +22,6 @@ func main() {
     for i := 0; i < 20; i++ {
         b.Run()
         fmt.Println("prime is:", int32(b.MemoryImage[21]))
-        b.Accumulator = 0
-        b.CurrentInstruction = 0
+        b.Reset()
     }
-
-    fmt.Print(b)
 }
