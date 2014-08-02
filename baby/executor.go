@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"bytes"
 	"strings"
 	"errors"
 )
@@ -108,4 +109,13 @@ func MemoryFromString(prog string) ([32]uint32, error) {
 	}
 
 	return memory, nil
+}
+
+func MemoryToString(mem [32]uint32) string {
+	buf := bytes.NewBuffer([]byte{})
+	for i, line := range mem {
+		fmt.Fprintf(buf, "%02d %032b % 10d\n", i, line, int32(line))
+	}
+
+	return buf.String()
 }

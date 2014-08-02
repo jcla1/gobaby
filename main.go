@@ -25,4 +25,6 @@ func main() {
         b.Accumulator = 0
         b.CurrentInstruction = 0
     }
+
+    fmt.Print(baby.MemoryToString(b.Memory))
 }
