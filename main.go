@@ -21,10 +21,10 @@ func main() {
 
     for i := 0; i < 20; i++ {
         b.Run()
-        fmt.Println("prime is:", int32(b.Memory[21]))
+        fmt.Println("prime is:", int32(b.MemoryImage[21]))
         b.Accumulator = 0
         b.CurrentInstruction = 0
     }
 
-    fmt.Print(baby.MemoryToString(b.Memory))
+    fmt.Print(b)
 }

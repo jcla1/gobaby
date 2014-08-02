@@ -2,6 +2,7 @@ package baby
 
 import (
 	"fmt"
+	"encoding/binary"
 	"regexp"
 	"strconv"
 	"bytes"
@@ -16,33 +17,35 @@ var (
 	ErrUnknownOpcode = errors.New("unknown opcode")
 )
 
+type MemoryImage [32]uint32
+
 type Baby struct {
 	CurrentInstruction uint32
 	Accumulator        uint32
 
 	// Bits 0-4 make up an optional address, while
 	// the actual instruction lives in 13-15
-	Memory [32]uint32
+	MemoryImage
 }
 
 func (b *Baby) Run() error {
 	for {
 		b.CurrentInstruction++
 
-		instr := b.Memory[int32(b.CurrentInstruction)%32]
+		instr := b.MemoryImage[int32(b.CurrentInstruction)%32]
 		data := instr & 0x0000001F
 
 		switch instr & 0x0000E000 {
 		case 0x00000000: // JMP
-			b.CurrentInstruction = b.Memory[data]
+			b.CurrentInstruction = b.MemoryImage[data]
 		case 0x00002000: // JRP
-			b.CurrentInstruction += b.Memory[data]
+			b.CurrentInstruction += b.MemoryImage[data]
 		case 0x00004000: // LDN
-			b.Accumulator = -b.Memory[data]
+			b.Accumulator = -b.MemoryImage[data]
 		case 0x00006000: // STO
-			b.Memory[data] = b.Accumulator
+			b.MemoryImage[data] = b.Accumulator
 		case 0x00008000: // SUB
-			b.Accumulator -= b.Memory[data]
+			b.Accumulator -= b.MemoryImage[data]
 		case 0x0000C000: // CMP
 			if int32(b.Accumulator) < 0 {
 				b.CurrentInstruction++
@@ -86,11 +89,11 @@ func instrToOpCode(instr string) (uint32, error) {
 	return uint32(opCode), nil
 }
 
-func MemoryFromString(prog string) ([32]uint32, error) {
+func MemoryFromString(prog string) (MemoryImage, error) {
 	var err error
 	lines := strings.Split(prog, "\n")
 
-	var memory [32]uint32
+	var memory MemoryImage
 	memoryIndex := 0
 
 	for i := 0; i < len(lines) && memoryIndex < len(memory); i++ {
@@ -111,10 +114,18 @@ func MemoryFromString(prog string) ([32]uint32, error) {
 	return memory, nil
 }
 
-func MemoryToString(mem [32]uint32) string {
+func (mem MemoryImage) String() string {
 	buf := bytes.NewBuffer([]byte{})
 	for i, line := range mem {
-		fmt.Fprintf(buf, "%02d %032b % 10d\n", i, line, int32(line))
+		fmt.Fprintf(buf, "%02d   ", i)
+
+		chunks := make([]byte, 4)
+		binary.BigEndian.PutUint32(chunks, line)
+		for _, chunk := range chunks {
+			fmt.Fprintf(buf, "%08b ", chunk)
+		}
+
+		fmt.Fprintf(buf, "   %10d\n", int32(line))
 	}
 
 	return buf.String()
