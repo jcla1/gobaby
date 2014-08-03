@@ -63,6 +63,36 @@ func (b *Baby) Reset() {
 	b.CurrentInstruction = 0
 }
 
+func (b *Baby) ASM() string {
+	var buf bytes.Buffer
+	for i, line := range b.MemoryImage {
+		fmt.Fprintf(&buf, "%02d  %s\n", i, memLineToASM(line))
+	}
+	return buf.String()
+}
+
+func memLineToASM(line uint32) string {
+	// If any of the high bits are set,
+	// we're guessing that it's a NUM
+	if (line & 0xFFFF0000) > 0 {
+		return fmt.Sprintf("NUM %2d", int32(line))
+	}
+
+	data := int32(line & 0x0000001F)
+
+	switch line & 0x0000E000 {
+	case 0x00000000: return fmt.Sprintf("JMP %2d", data)
+	case 0x00002000: return fmt.Sprintf("JRP %2d", data)
+	case 0x00004000: return fmt.Sprintf("LDN %2d", data)
+	case 0x00006000: return fmt.Sprintf("STO %2d", data)
+	case 0x00008000: return fmt.Sprintf("SUB %2d", data)
+	case 0x0000C000: return "CMP"
+	case 0x0000E000: return "STP"
+	}
+
+	return ""
+}
+
 func instrToOpCode(instr string) (uint32, error) {
 	matches := lineRegex.FindStringSubmatch(instr)[1:]
 
@@ -120,17 +150,17 @@ func MemoryFromString(prog string) (MemoryImage, error) {
 }
 
 func (mem MemoryImage) String() string {
-	buf := bytes.NewBuffer([]byte{})
+	var buf bytes.Buffer
 	for i, line := range mem {
-		fmt.Fprintf(buf, "%02d   ", i)
+		fmt.Fprintf(&buf, "%02d   ", i)
 
 		chunks := make([]byte, 4)
 		binary.BigEndian.PutUint32(chunks, line)
 		for _, chunk := range chunks {
-			fmt.Fprintf(buf, "%08b ", chunk)
+			fmt.Fprintf(&buf, "%08b ", chunk)
 		}
 
-		fmt.Fprintf(buf, "   %10d\n", int32(line))
+		fmt.Fprintf(&buf, "   %10d\n", int32(line))
 	}
 
 	return buf.String()
