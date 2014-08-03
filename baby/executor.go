@@ -1,20 +1,20 @@
 package baby
 
 import (
-	"fmt"
+	"bytes"
 	"encoding/binary"
+	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
-	"bytes"
 	"strings"
-	"errors"
 )
 
 var lineRegex = regexp.MustCompile("[0-9]* *(NUM|JMP|JRP|LDN|STO|SUB|CMP|STP)( *)?(-?[0-9]+)?")
 
 var (
 	ErrNonInstruction = errors.New("trying to execute non-instruction code")
-	ErrUnknownOpcode = errors.New("unknown opcode")
+	ErrUnknownOpcode  = errors.New("unknown opcode")
 )
 
 type MemoryImage [32]uint32
@@ -81,13 +81,20 @@ func memLineToASM(line uint32) string {
 	data := int32(line & 0x0000001F)
 
 	switch line & 0x0000E000 {
-	case 0x00000000: return fmt.Sprintf("JMP %2d", data)
-	case 0x00002000: return fmt.Sprintf("JRP %2d", data)
-	case 0x00004000: return fmt.Sprintf("LDN %2d", data)
-	case 0x00006000: return fmt.Sprintf("STO %2d", data)
-	case 0x00008000: return fmt.Sprintf("SUB %2d", data)
-	case 0x0000C000: return "CMP"
-	case 0x0000E000: return "STP"
+	case 0x00000000:
+		return fmt.Sprintf("JMP %2d", data)
+	case 0x00002000:
+		return fmt.Sprintf("JRP %2d", data)
+	case 0x00004000:
+		return fmt.Sprintf("LDN %2d", data)
+	case 0x00006000:
+		return fmt.Sprintf("STO %2d", data)
+	case 0x00008000:
+		return fmt.Sprintf("SUB %2d", data)
+	case 0x0000C000:
+		return "CMP"
+	case 0x0000E000:
+		return "STP"
 	}
 
 	return ""
