@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var lineRegex = regexp.MustCompile("[0-9]* *(NUM|JMP|JRP|LDN|STO|SUB|CMP|STP)( *)?(-?[0-9]+)?")
+var lineRegex = regexp.MustCompile("(?:[0-9]*)? *(NUM|JMP|JRP|LDN|STO|SUB|CMP|STP)( *)?(-?[0-9]+)?")
 
 var (
 	ErrNonInstruction = errors.New("trying to execute non-instruction code")
