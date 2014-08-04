@@ -6,12 +6,16 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/jcla1/gobaby/baby"
 )
 
-var printLoc = flag.Int("l", -1, "memory location whose value shall be printed, range -1 - 31")
-var printMem = flag.Bool("p", true, "print out the memory as a program, after execution")
+var (
+	printLoc   = flag.Int("l", -1, "memory location whose value shall be printed, range -1 - 31")
+	printMem   = flag.Bool("p", true, "print out the memory as a program, after execution")
+	takeTiming = flag.Bool("t", false, "measure runtime of program execution")
+)
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "usage: %s filename\n", os.Args[0])
@@ -50,7 +54,17 @@ func main() {
 	}
 
 	b := baby.Baby{0, 0, mem}
+
+	var startTime time.Time
+	if *takeTiming {
+		startTime = time.Now()
+	}
+
 	b.Run()
+
+	if *takeTiming {
+		fmt.Printf("Execution took: %s\n", time.Since(startTime))
+	}
 
 	if *printLoc > -1 {
 		fmt.Printf("Value at location #%02d: %d\n", *printLoc, int32(b.MemoryImage[*printLoc]))
