@@ -53,7 +53,7 @@ func main() {
 	b.Run()
 
 	if *printLoc > -1 {
-		fmt.Printf("Value at location #%d: %d\n", *printLoc, int32(b.MemoryImage[*printLoc]))
+		fmt.Printf("Value at location #%02d: %d\n", *printLoc, int32(b.MemoryImage[*printLoc]))
 	}
 
 	if *printMem {
