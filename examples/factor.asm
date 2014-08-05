@@ -1,3 +1,7 @@
+; This is the original factor finding program that was run on the SSEM in Manchester aka "the Baby"
+; Run with: gobaby -t -l 27 -p=f examples/factor.asm [run-time ~ 15ms]
+; Keep in mind, exection on the original machine took nearly an hour, same goes for the replica.
+
 00  JMP  0
 ; Initialization
 01  LDN 24          ; Loads to Acc -(no. to be factored - 1) = initial -b test value
